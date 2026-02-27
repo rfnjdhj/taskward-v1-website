@@ -3,7 +3,8 @@
     "TITLE": {
       "NOTE": "Note",
       "ARCHIVE": "Archive",
-      "TRASH": "Trash"
+      "TRASH": "Trash",
+      "STATISTICS": "Statistics"
     }
   },
   "HEADER": {
