@@ -6,8 +6,9 @@ const Archive = lazy(() => import('./Archive'))
 const Trash = lazy(() => import('./Trash'))
 const NotFound = lazy(() => import('./NotFound'))
 const Icons = lazy(() => import('./Icons'))
+const Statistics = lazy(() => import('./Statistics'))
 
 import Login from './Login'
 import Signup from './Signup'
 
-export { Home, Note, Archive, Trash, NotFound, Login, Signup, Icons }
+export { Home, Note, Archive, Trash, Statistics, NotFound, Login, Signup, Icons }
