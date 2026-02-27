@@ -1,0 +1,46 @@
+{
+  "TITLE": "数据统计",
+  "REFRESH": "刷新",
+  "EXPORT_IMAGE": "导出图片",
+  "EXPORT_CSV": "导出CSV",
+  "DATE_RANGE": {
+    "START": "开始日期",
+    "END": "结束日期"
+  },
+  "SELECTED_DATE": "选中日期",
+  "SELECTED_TAG": "选中标签",
+  "CHART": {
+    "LINE_TITLE": "每日完成任务趋势",
+    "PIE_TITLE": "未完成任务标签分布",
+    "BAR_TITLE": "优先级分布",
+    "COMPLETED_TASKS": "完成任务数",
+    "TASK_COUNT": "任务数量",
+    "TAG_DISTRIBUTION": "标签分布",
+    "CLICK_TO_VIEW": "点击查看详情",
+    "CLICK_TO_FILTER": "点击筛选",
+    "NO_DATA": "暂无数据"
+  },
+  "PRIORITY": {
+    "HIGH": "高优先级",
+    "MEDIUM": "中优先级",
+    "LOW": "低优先级"
+  },
+  "STATS": {
+    "SUMMARY": "数据概览",
+    "TOTAL_COMPLETED": "已完成任务",
+    "UNCOMPLETED": "未完成任务",
+    "TOTAL_NOTES": "记事本数量",
+    "TOTAL_TASKS": "任务总数"
+  },
+  "TASK": {
+    "NO_CONTENT": "无内容",
+    "NO_TASKS": "暂无任务"
+  },
+  "TAG": {
+    "UNTITLED": "未命名"
+  },
+  "MODAL": {
+    "PRIORITY_TASKS": "{{priority}}任务列表",
+    "TAG_TASKS": "「{{tag}}」任务列表"
+  }
+}

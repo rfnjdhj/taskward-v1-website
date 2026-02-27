@@ -1,0 +1,46 @@
+{
+  "TITLE": "Statistiques",
+  "REFRESH": "Actualiser",
+  "EXPORT_IMAGE": "Exporter image",
+  "EXPORT_CSV": "Exporter CSV",
+  "DATE_RANGE": {
+    "START": "Date de début",
+    "END": "Date de fin"
+  },
+  "SELECTED_DATE": "Date sélectionnée",
+  "SELECTED_TAG": "Tag sélectionné",
+  "CHART": {
+    "LINE_TITLE": "Tendance des tâches quotidiennes",
+    "PIE_TITLE": "Distribution des tags des tâches non terminées",
+    "BAR_TITLE": "Distribution des priorités",
+    "COMPLETED_TASKS": "Tâches terminées",
+    "TASK_COUNT": "Nombre de tâches",
+    "TAG_DISTRIBUTION": "Distribution des tags",
+    "CLICK_TO_VIEW": "Cliquez pour voir les détails",
+    "CLICK_TO_FILTER": "Cliquez pour filtrer",
+    "NO_DATA": "Aucune donnée"
+  },
+  "PRIORITY": {
+    "HIGH": "Haute priorité",
+    "MEDIUM": "Priorité moyenne",
+    "LOW": "Basse priorité"
+  },
+  "STATS": {
+    "SUMMARY": "Résumé",
+    "TOTAL_COMPLETED": "Tâches terminées",
+    "UNCOMPLETED": "Tâches non terminées",
+    "TOTAL_NOTES": "Total des notes",
+    "TOTAL_TASKS": "Total des tâches"
+  },
+  "TASK": {
+    "NO_CONTENT": "Pas de contenu",
+    "NO_TASKS": "Pas de tâches"
+  },
+  "TAG": {
+    "UNTITLED": "Sans titre"
+  },
+  "MODAL": {
+    "PRIORITY_TASKS": "Tâches {{priority}}",
+    "TAG_TASKS": "Tâches dans \"{{tag}}\""
+  }
+}

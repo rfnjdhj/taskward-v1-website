@@ -1,0 +1,46 @@
+{
+  "TITLE": "データ統計",
+  "REFRESH": "更新",
+  "EXPORT_IMAGE": "画像をエクスポート",
+  "EXPORT_CSV": "CSVをエクスポート",
+  "DATE_RANGE": {
+    "START": "開始日",
+    "END": "終了日"
+  },
+  "SELECTED_DATE": "選択日",
+  "SELECTED_TAG": "選択タグ",
+  "CHART": {
+    "LINE_TITLE": "日次完了タスク傾向",
+    "PIE_TITLE": "未完了タスクのタグ分布",
+    "BAR_TITLE": "優先度分布",
+    "COMPLETED_TASKS": "完了タスク数",
+    "TASK_COUNT": "タスク数",
+    "TAG_DISTRIBUTION": "タグ分布",
+    "CLICK_TO_VIEW": "クリックして詳細を見る",
+    "CLICK_TO_FILTER": "クリックしてフィルター",
+    "NO_DATA": "データがありません"
+  },
+  "PRIORITY": {
+    "HIGH": "高優先度",
+    "MEDIUM": "中優先度",
+    "LOW": "低優先度"
+  },
+  "STATS": {
+    "SUMMARY": "データ概要",
+    "TOTAL_COMPLETED": "完了タスク",
+    "UNCOMPLETED": "未完了タスク",
+    "TOTAL_NOTES": "ノート数",
+    "TOTAL_TASKS": "タスク総数"
+  },
+  "TASK": {
+    "NO_CONTENT": "内容なし",
+    "NO_TASKS": "タスクがありません"
+  },
+  "TAG": {
+    "UNTITLED": "無題"
+  },
+  "MODAL": {
+    "PRIORITY_TASKS": "{{priority}}タスク一覧",
+    "TAG_TASKS": "「{{tag}}」タスク一覧"
+  }
+}

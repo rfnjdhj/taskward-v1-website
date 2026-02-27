@@ -1,0 +1,46 @@
+{
+  "TITLE": "Statistics",
+  "REFRESH": "Refresh",
+  "EXPORT_IMAGE": "Export Image",
+  "EXPORT_CSV": "Export CSV",
+  "DATE_RANGE": {
+    "START": "Start Date",
+    "END": "End Date"
+  },
+  "SELECTED_DATE": "Selected Date",
+  "SELECTED_TAG": "Selected Tag",
+  "CHART": {
+    "LINE_TITLE": "Daily Completed Tasks Trend",
+    "PIE_TITLE": "Uncompleted Tasks by Tag",
+    "BAR_TITLE": "Priority Distribution",
+    "COMPLETED_TASKS": "Completed Tasks",
+    "TASK_COUNT": "Task Count",
+    "TAG_DISTRIBUTION": "Tag Distribution",
+    "CLICK_TO_VIEW": "Click to view details",
+    "CLICK_TO_FILTER": "Click to filter",
+    "NO_DATA": "No data available"
+  },
+  "PRIORITY": {
+    "HIGH": "High Priority",
+    "MEDIUM": "Medium Priority",
+    "LOW": "Low Priority"
+  },
+  "STATS": {
+    "SUMMARY": "Summary",
+    "TOTAL_COMPLETED": "Completed Tasks",
+    "UNCOMPLETED": "Uncompleted Tasks",
+    "TOTAL_NOTES": "Total Notes",
+    "TOTAL_TASKS": "Total Tasks"
+  },
+  "TASK": {
+    "NO_CONTENT": "No content",
+    "NO_TASKS": "No tasks"
+  },
+  "TAG": {
+    "UNTITLED": "Untitled"
+  },
+  "MODAL": {
+    "PRIORITY_TASKS": "{{priority}} Tasks",
+    "TAG_TASKS": "Tasks in \"{{tag}}\""
+  }
+}
