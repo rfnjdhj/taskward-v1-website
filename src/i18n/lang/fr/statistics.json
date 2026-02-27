@@ -1,0 +1,52 @@
+{
+  "STATISTICS": {
+    "TITLE": "Statistiques",
+    "REFRESH": "Actualiser",
+    "EXPORT_IMAGE": "Exporter l'image",
+    "EXPORT_CSV": "Exporter CSV",
+    "DATE_RANGE": "Plage de dates",
+    "START_DATE": "Date de début",
+    "END_DATE": "Date de fin",
+    "APPLY": "Appliquer",
+    "LINE_CHART": {
+      "TITLE": "Tendance d'achèvement",
+      "DESCRIPTION": "Tâches terminées quotidiennement sur 30 jours",
+      "X_AXIS": "Date",
+      "Y_AXIS": "Terminées",
+      "SELECTED_DATE": "Date sélectionnée"
+    },
+    "PIE_CHART": {
+      "TITLE": "Tâches en attente par étiquette",
+      "DESCRIPTION": "Voir la distribution des tâches par étiquette",
+      "NO_LABEL": "Sans étiquette",
+      "CLICK_TO_FILTER": "Cliquez pour voir les tâches",
+      "SELECTED_LABEL": "Étiquette sélectionnée"
+    },
+    "BAR_CHART": {
+      "TITLE": "Comparaison par priorité",
+      "DESCRIPTION": "Nombre de tâches haute, moyenne, basse priorité",
+      "HIGH": "Haute priorité",
+      "MEDIUM": "Moyenne priorité",
+      "LOW": "Basse priorité",
+      "CLICK_TO_FILTER": "Cliquez pour filtrer",
+      "SELECTED_PRIORITY": "Priorité sélectionnée"
+    },
+    "TASK_LIST": {
+      "TITLE": "Liste des tâches",
+      "CLOSE": "Fermer",
+      "NO_TASKS": "Aucune tâche",
+      "TASK_COUNT": "{{count}} tâches au total"
+    },
+    "PRIORITY": {
+      "HIGH": "Haute",
+      "MEDIUM": "Moyenne",
+      "LOW": "Basse"
+    },
+    "SUMMARY": {
+      "TOTAL_TASKS": "Total des tâches",
+      "COMPLETED_TASKS": "Terminées",
+      "PENDING_TASKS": "En attente",
+      "COMPLETION_RATE": "Taux d'achèvement"
+    }
+  }
+}

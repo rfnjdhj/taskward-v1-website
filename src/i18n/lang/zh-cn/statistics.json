@@ -1,0 +1,52 @@
+{
+  "STATISTICS": {
+    "TITLE": "数据统计",
+    "REFRESH": "刷新数据",
+    "EXPORT_IMAGE": "导出图片",
+    "EXPORT_CSV": "导出CSV",
+    "DATE_RANGE": "日期范围",
+    "START_DATE": "开始日期",
+    "END_DATE": "结束日期",
+    "APPLY": "应用",
+    "LINE_CHART": {
+      "TITLE": "任务完成趋势",
+      "DESCRIPTION": "最近30天每天完成的任务数",
+      "X_AXIS": "日期",
+      "Y_AXIS": "完成数",
+      "SELECTED_DATE": "已选择日期"
+    },
+    "PIE_CHART": {
+      "TITLE": "未完成任务标签分布",
+      "DESCRIPTION": "按标签查看未完成任务分布",
+      "NO_LABEL": "无标签",
+      "CLICK_TO_FILTER": "点击扇形查看任务列表",
+      "SELECTED_LABEL": "已选择标签"
+    },
+    "BAR_CHART": {
+      "TITLE": "优先级任务对比",
+      "DESCRIPTION": "高、中、低优先级任务数量",
+      "HIGH": "高优先级",
+      "MEDIUM": "中优先级",
+      "LOW": "低优先级",
+      "CLICK_TO_FILTER": "点击柱子筛选任务",
+      "SELECTED_PRIORITY": "已选择优先级"
+    },
+    "TASK_LIST": {
+      "TITLE": "任务列表",
+      "CLOSE": "关闭",
+      "NO_TASKS": "暂无任务",
+      "TASK_COUNT": "共 {{count}} 个任务"
+    },
+    "PRIORITY": {
+      "HIGH": "高",
+      "MEDIUM": "中",
+      "LOW": "低"
+    },
+    "SUMMARY": {
+      "TOTAL_TASKS": "总任务数",
+      "COMPLETED_TASKS": "已完成",
+      "PENDING_TASKS": "待完成",
+      "COMPLETION_RATE": "完成率"
+    }
+  }
+}

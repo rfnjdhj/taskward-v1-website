@@ -1,0 +1,52 @@
+{
+  "STATISTICS": {
+    "TITLE": "Statistics",
+    "REFRESH": "Refresh Data",
+    "EXPORT_IMAGE": "Export Image",
+    "EXPORT_CSV": "Export CSV",
+    "DATE_RANGE": "Date Range",
+    "START_DATE": "Start Date",
+    "END_DATE": "End Date",
+    "APPLY": "Apply",
+    "LINE_CHART": {
+      "TITLE": "Task Completion Trend",
+      "DESCRIPTION": "Daily completed tasks in the last 30 days",
+      "X_AXIS": "Date",
+      "Y_AXIS": "Completed",
+      "SELECTED_DATE": "Selected Date"
+    },
+    "PIE_CHART": {
+      "TITLE": "Pending Tasks by Label",
+      "DESCRIPTION": "View pending task distribution by label",
+      "NO_LABEL": "No Label",
+      "CLICK_TO_FILTER": "Click slice to view tasks",
+      "SELECTED_LABEL": "Selected Label"
+    },
+    "BAR_CHART": {
+      "TITLE": "Priority Task Comparison",
+      "DESCRIPTION": "High, medium, low priority task counts",
+      "HIGH": "High Priority",
+      "MEDIUM": "Medium Priority",
+      "LOW": "Low Priority",
+      "CLICK_TO_FILTER": "Click bar to filter tasks",
+      "SELECTED_PRIORITY": "Selected Priority"
+    },
+    "TASK_LIST": {
+      "TITLE": "Task List",
+      "CLOSE": "Close",
+      "NO_TASKS": "No tasks",
+      "TASK_COUNT": "{{count}} tasks total"
+    },
+    "PRIORITY": {
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low"
+    },
+    "SUMMARY": {
+      "TOTAL_TASKS": "Total Tasks",
+      "COMPLETED_TASKS": "Completed",
+      "PENDING_TASKS": "Pending",
+      "COMPLETION_RATE": "Completion Rate"
+    }
+  }
+}

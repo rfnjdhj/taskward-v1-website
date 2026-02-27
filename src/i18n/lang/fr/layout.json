@@ -1,15 +1,16 @@
 {
   "SIDEBAR": {
     "TITLE": {
-      "NOTE": "Remarque",
+      "NOTE": "Note",
       "ARCHIVE": "Archive",
-      "TRASH": "Corbeille"
+      "TRASH": "Corbeille",
+      "STATISTICS": "Statistiques"
     }
   },
   "HEADER": {
     "TITLE": {
       "MENU": "Menu",
-      "SWITCH.TO.LIGHT.MODE": "Passer en mode lumière",
+      "SWITCH.TO.LIGHT.MODE": "Passer en mode clair",
       "SWITCH.TO.DARK.MODE": "Passer en mode sombre"
     }
   }
