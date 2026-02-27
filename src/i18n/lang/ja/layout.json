@@ -3,7 +3,8 @@
     "TITLE": {
       "NOTE": "ノート",
       "ARCHIVE": "記録",
-      "TRASH": "ごみ箱"
+      "TRASH": "ごみ箱",
+      "STATISTICS": "データ統計"
     }
   },
   "HEADER": {

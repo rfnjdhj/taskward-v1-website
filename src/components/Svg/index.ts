@@ -53,6 +53,10 @@ import Link from './Link'
 import LinkOff from './LinkOff'
 import Touch from './Touch'
 import Door from './Door'
+import Statistics from './Statistics'
+import Download from './Download'
+import Image from './Image'
+import FileDownload from './FileDownload'
 
 export const Icon = {
   Archive,
@@ -102,5 +106,9 @@ export const Icon = {
   Link,
   LinkOff,
   Touch,
-  Door
+  Door,
+  Statistics,
+  Download,
+  Image,
+  FileDownload
 }
