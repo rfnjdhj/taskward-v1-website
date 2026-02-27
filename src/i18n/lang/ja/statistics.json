@@ -1,0 +1,52 @@
+{
+  "STATISTICS": {
+    "TITLE": "データ統計",
+    "REFRESH": "データを更新",
+    "EXPORT_IMAGE": "画像をエクスポート",
+    "EXPORT_CSV": "CSVをエクスポート",
+    "DATE_RANGE": "日付範囲",
+    "START_DATE": "開始日",
+    "END_DATE": "終了日",
+    "APPLY": "適用",
+    "LINE_CHART": {
+      "TITLE": "タスク完了トレンド",
+      "DESCRIPTION": "最近30日間の毎日の完了タスク数",
+      "X_AXIS": "日付",
+      "Y_AXIS": "完了数",
+      "SELECTED_DATE": "選択した日付"
+    },
+    "PIE_CHART": {
+      "TITLE": "未完了タスクのラベル分布",
+      "DESCRIPTION": "ラベル別の未完了タスク分布を表示",
+      "NO_LABEL": "ラベルなし",
+      "CLICK_TO_FILTER": "スライスをクリックしてタスクを表示",
+      "SELECTED_LABEL": "選択したラベル"
+    },
+    "BAR_CHART": {
+      "TITLE": "優先度タスク比較",
+      "DESCRIPTION": "高、中、低優先度のタスク数",
+      "HIGH": "高優先度",
+      "MEDIUM": "中優先度",
+      "LOW": "低優先度",
+      "CLICK_TO_FILTER": "バーをクリックしてタスクをフィルタ",
+      "SELECTED_PRIORITY": "選択した優先度"
+    },
+    "TASK_LIST": {
+      "TITLE": "タスクリスト",
+      "CLOSE": "閉じる",
+      "NO_TASKS": "タスクがありません",
+      "TASK_COUNT": "合計 {{count}} 件のタスク"
+    },
+    "PRIORITY": {
+      "HIGH": "高",
+      "MEDIUM": "中",
+      "LOW": "低"
+    },
+    "SUMMARY": {
+      "TOTAL_TASKS": "総タスク数",
+      "COMPLETED_TASKS": "完了済み",
+      "PENDING_TASKS": "未完了",
+      "COMPLETION_RATE": "完了率"
+    }
+  }
+}
