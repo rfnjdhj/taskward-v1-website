@@ -24,7 +24,22 @@ import { getDocumentTitle } from '@/utils'
 import { useAppDispatch } from '@/hooks'
 import { sidebarAction, ActiveSidebarItem } from '@/store'
 import { useGetNotesRequest } from '@/requests'
-import { useStatisticsData, TagDistribution, DailyCompletedTasks } from '@/hooks/useStatisticsData'
+import { useWebWorkerStatistics } from '@/hooks/useWebWorkerStatistics'
+import {
+  StatisticsData,
+  TagDistribution,
+  DailyCompletedTasks,
+  filterTasksByPriority,
+  sortTasksByDate,
+  searchTasks,
+  getPriorityLabel,
+  flattenTasks,
+  calculateDailyCompleted,
+  filterDailyCompletedByTag,
+  calculateTagDistribution,
+  calculatePriorityDistribution,
+  filterTasksByDate
+} from '@/utils/statistics'
 import { Note as NoteType, Task as TaskType } from '@/interfaces'
 
 const COLORS = [
@@ -53,6 +68,12 @@ export default function Statistics(): JSX.Element {
   const chartRef = useRef<HTMLDivElement>(null)
 
   const { data: notesData, isLoading, refetch, isRefetching } = useGetNotesRequest()
+  const {
+    calculateStatisticsAsync,
+    filterDailyCompletedByTagAsync,
+    isLoading: workerLoading,
+    error: workerError
+  } = useWebWorkerStatistics()
 
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>('last30')
   const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string }>({
@@ -73,6 +94,21 @@ export default function Statistics(): JSX.Element {
     success: false,
     message: ''
   })
+  const [statistics, setStatistics] = useState<StatisticsData>({
+    dailyCompleted: [],
+    priorityDistribution: {
+      high: 0,
+      medium: 0,
+      low: 0,
+      highTasks: [],
+      mediumTasks: [],
+      lowTasks: []
+    },
+    tagDistribution: [],
+    totalTasks: 0,
+    completedTasks: 0,
+    incompleteTasks: 0
+  })
 
   const dateRange = useMemo(() => {
     if (dateRangeType === 'last7') {
@@ -84,17 +120,56 @@ export default function Statistics(): JSX.Element {
     return { start: dayjs(customDateRange.start), end: dayjs(customDateRange.end) }
   }, [dateRangeType, customDateRange])
 
-  const statistics = useStatisticsData(notesData?.notes, dateRange)
+  // Calculate statistics using Web Worker
+  useEffect(() => {
+    if (notesData?.notes) {
+      calculateStatisticsAsync(notesData.notes, dateRange)
+        .then((result) => {
+          setStatistics(result)
+        })
+        .catch((error) => {
+          console.error('Failed to calculate statistics:', error)
+          showNotification(false, t('statistics:ERROR.CALCULATION_FAILED'))
+        })
+    }
+  }, [notesData?.notes, dateRange])
 
-  const filteredDailyCompleted = useMemo(() => {
-    if (!selectedDate) return statistics.dailyCompleted
-    const selectedDayData = statistics.dailyCompleted.find((d) => d.date === selectedDate)
-    return selectedDayData ? [selectedDayData] : []
-  }, [statistics.dailyCompleted, selectedDate])
+  const [filteredDailyCompleted, setFilteredDailyCompleted] = useState(statistics.dailyCompleted)
+
+  // 处理标签过滤 - 使用Web Worker计算
+  useEffect(() => {
+    if (selectedTag && notesData?.notes) {
+      filterDailyCompletedByTagAsync(statistics.dailyCompleted, selectedTag.tag, notesData.notes)
+        .then((filtered) => {
+          setFilteredDailyCompleted(filtered)
+        })
+        .catch((error) => {
+          console.error('Failed to filter daily completed by tag:', error)
+          showNotification(false, t('statistics:ERROR.CALCULATION_FAILED'))
+        })
+    } else if (selectedDate) {
+      // 如果选中了日期，只显示当天的数据
+      const selectedDayData = statistics.dailyCompleted.find((d) => d.date === selectedDate)
+      setFilteredDailyCompleted(selectedDayData ? [selectedDayData] : [])
+    } else {
+      // 没有选中任何过滤器，显示所有数据
+      setFilteredDailyCompleted(statistics.dailyCompleted)
+    }
+  }, [
+    selectedTag,
+    selectedDate,
+    statistics.dailyCompleted,
+    notesData?.notes,
+    filterDailyCompletedByTagAsync
+  ])
 
   const filteredTagDistribution = useMemo(() => {
     return statistics.tagDistribution.slice(0, 8)
   }, [statistics.tagDistribution])
+
+  const filteredPriorityDistribution = useMemo(() => {
+    return statistics.priorityDistribution
+  }, [statistics.priorityDistribution])
 
   const selectedTasksForTag = useMemo(() => {
     if (!selectedTag) return []
@@ -211,51 +286,105 @@ export default function Statistics(): JSX.Element {
     return [
       {
         name: t('statistics:PRIORITY.HIGH'),
-        value: statistics.priorityDistribution.high,
+        value: filteredPriorityDistribution.high,
         priority: 'high' as PriorityType,
         fill: '#ef4444'
       },
       {
         name: t('statistics:PRIORITY.MEDIUM'),
-        value: statistics.priorityDistribution.medium,
+        value: filteredPriorityDistribution.medium,
         priority: 'medium' as PriorityType,
         fill: '#f59e0b'
       },
       {
         name: t('statistics:PRIORITY.LOW'),
-        value: statistics.priorityDistribution.low,
+        value: filteredPriorityDistribution.low,
         priority: 'low' as PriorityType,
         fill: '#22c55e'
       }
     ]
-  }, [statistics.priorityDistribution, t])
+  }, [filteredPriorityDistribution, t])
 
   const TaskListModal = ({
     show,
     onClose,
     title,
-    tasks
+    tasks,
+    enableSearch = false,
+    enablePriorityFilter = false,
+    enableSortByDate = false
   }: {
     show: boolean
     onClose: () => void
     title: string
     tasks: TaskType[]
+    enableSearch?: boolean
+    enablePriorityFilter?: boolean
+    enableSortByDate?: boolean
   }) => {
-    if (!show) return null
+    const [searchTerm, setSearchTerm] = useState('')
+    const [priorityFilter, setPriorityFilter] = useState<PriorityType | 'all'>('all')
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+    const [sortBy, setSortBy] = useState<'date' | 'none'>('none')
+
+    const filteredAndSortedTasks = useMemo(() => {
+      let result = [...tasks]
+
+      // 搜索过滤
+      if (searchTerm) {
+        result = result.filter((task) =>
+          task.content?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      }
+
+      // 优先级过滤
+      if (enablePriorityFilter && priorityFilter !== 'all') {
+        result = filterTasksByPriority(result, priorityFilter)
+      }
+
+      // 按日期排序
+      if (enableSortByDate && sortBy === 'date') {
+        result = sortTasksByDate(result, sortOrder)
+      }
+
+      return result
+    }, [tasks, searchTerm, priorityFilter, sortOrder, sortBy])
 
     const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
-      const task = tasks[index]
+      const task = filteredAndSortedTasks[index]
       return (
         <div
           style={style}
           className="flex items-center border-b border-base-300 px-4 dark:border-gray-700"
         >
-          <span className="truncate text-sm text-gray-700 dark:text-gray-300">
-            {task.content || t('statistics:TASK_LIST.EMPTY')}
-          </span>
+          <div className="flex flex-1 flex-col">
+            <span className="truncate text-sm text-gray-700 dark:text-gray-300">
+              {task.content || t('statistics:TASK_LIST.EMPTY')}
+            </span>
+            {task.finishedAt && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {dayjs(task.finishedAt).format('YYYY-MM-DD HH:mm')}
+              </span>
+            )}
+          </div>
+          {task.priority && (
+            <span
+              className={`badge badge-xs ${
+                task.priority === 'high'
+                  ? 'badge-error'
+                  : task.priority === 'medium'
+                    ? 'badge-warning'
+                    : 'badge-success'
+              }`}
+            >
+              {getPriorityLabel(task.priority)}
+            </span>
+          )}
         </div>
       )
     }
+
+    if (!show) return null
 
     return (
       <div
@@ -275,13 +404,66 @@ export default function Statistics(): JSX.Element {
               ✕
             </button>
           </div>
+
+          {/* 搜索和筛选区域 */}
+          <div className="space-y-2 border-b border-base-300 p-4 dark:border-gray-700">
+            {enableSearch && (
+              <input
+                type="text"
+                placeholder={t('statistics:TASK_LIST.SEARCH') || 'Search tasks...'}
+                className="input input-bordered input-sm w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              {enablePriorityFilter && (
+                <select
+                  className="select select-bordered select-sm"
+                  value={priorityFilter}
+                  onChange={(e) => setPriorityFilter(e.target.value as PriorityType | 'all')}
+                >
+                  <option value="all">
+                    {t('statistics:TASK_LIST.ALL_PRIORITIES') || 'All priorities'}
+                  </option>
+                  <option value="high">{t('statistics:PRIORITY.HIGH')}</option>
+                  <option value="medium">{t('statistics:PRIORITY.MEDIUM')}</option>
+                  <option value="low">{t('statistics:PRIORITY.LOW')}</option>
+                </select>
+              )}
+
+              {enableSortByDate && (
+                <select
+                  className="select select-bordered select-sm"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'date' | 'none')}
+                >
+                  <option value="none">{t('statistics:TASK_LIST.NO_SORT') || 'No sort'}</option>
+                  <option value="date">
+                    {t('statistics:TASK_LIST.SORT_BY_DATE') || 'Sort by date'}
+                  </option>
+                </select>
+              )}
+
+              {enableSortByDate && sortBy === 'date' && (
+                <button
+                  className="btn btn-sm btn-outline"
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                >
+                  {sortOrder === 'desc' ? '↓' : '↑'}
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="flex-1 overflow-hidden">
-            {tasks.length > 0 ? (
+            {filteredAndSortedTasks.length > 0 ? (
               <FixedSizeList
                 height={400}
                 width="100%"
-                itemCount={tasks.length}
-                itemSize={50}
+                itemCount={filteredAndSortedTasks.length}
+                itemSize={60}
               >
                 {Row}
               </FixedSizeList>
@@ -454,13 +636,16 @@ export default function Statistics(): JSX.Element {
           className="grid grid-cols-1 gap-6 lg:grid-cols-2"
         >
           <div className="card card-bordered bg-base-100 p-4 shadow-xl lg:col-span-2">
-            <h2 className="mb-4 text-lg font-semibold">{t('statistics:CHART.COMPLETED_TREND')}</h2>
+            <h2 className="mb-4 text-lg font-semibold">
+              {t('statistics:CHART.COMPLETED_TREND')}
+              {selectedTag && <span className="badge badge-primary ml-2">{selectedTag.tag}</span>}
+            </h2>
             <div className="h-[300px]">
               <ResponsiveContainer
                 width="100%"
                 height="100%"
               >
-                <LineChart data={statistics.dailyCompleted}>
+                <LineChart data={filteredDailyCompleted}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="date"
@@ -478,7 +663,7 @@ export default function Statistics(): JSX.Element {
                   <Line
                     type="monotone"
                     dataKey="count"
-                    stroke="#8884d8"
+                    stroke={selectedTag ? COLORS[0] : '#8884d8'}
                     activeDot={{
                       r: 8,
                       onClick: (_, payload) =>
@@ -635,6 +820,8 @@ export default function Statistics(): JSX.Element {
         onClose={() => setShowTagModal(false)}
         title={t('statistics:TASK_LIST.FILTERED_BY_TAG', { tag: selectedTag?.tag || '' })}
         tasks={selectedTasksForTag}
+        enablePriorityFilter={true}
+        enableSortByDate={true}
       />
 
       <TaskListModal
@@ -644,6 +831,7 @@ export default function Statistics(): JSX.Element {
           priority: getPriorityLabel(selectedPriority || 'high')
         })}
         tasks={priorityTasks}
+        enableSearch={true}
       />
 
       {notification.show && (
