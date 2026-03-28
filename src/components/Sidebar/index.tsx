@@ -69,6 +69,15 @@ export default function Sidebar(): JSX.Element {
           onClickSidebarItem(ActiveSidebarItem.Trash)
         }}
       />
+      <SidebarItem
+        shouldExpand={sidebarMode === 'expand' || (shouldExpand && sidebarMode === 'collapse')}
+        icon={<Icon.BarChart className="fill-black dark:fill-white" />}
+        title={t('layout:SIDEBAR.TITLE.STATISTICS')}
+        active={activeSidebarItem === ActiveSidebarItem.Statistics}
+        onClick={() => {
+          onClickSidebarItem(ActiveSidebarItem.Statistics)
+        }}
+      />
     </div>
   )
 }

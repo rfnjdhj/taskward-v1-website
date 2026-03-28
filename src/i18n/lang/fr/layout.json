@@ -3,7 +3,8 @@
     "TITLE": {
       "NOTE": "Remarque",
       "ARCHIVE": "Archive",
-      "TRASH": "Corbeille"
+      "TRASH": "Corbeille",
+      "STATISTICS": "Statistiques"
     }
   },
   "HEADER": {
