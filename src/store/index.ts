@@ -4,6 +4,7 @@ import userReducer from './userSlice'
 import styleReducer from './styleSlice'
 import notificationSlice from './notificationSlice'
 import requestSlice from './requestSlice'
+import statisticsReducer from './statisticsSlice'
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     user: userReducer,
     style: styleReducer,
     notification: notificationSlice,
-    request: requestSlice
+    request: requestSlice,
+    statistics: statisticsReducer
   }
 })
 

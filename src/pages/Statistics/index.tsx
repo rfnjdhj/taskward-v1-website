@@ -1,22 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import dayjs, { Dayjs } from 'dayjs'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  Legend
-} from 'recharts'
-import { FixedSizeList } from 'react-window'
+import dayjs from 'dayjs'
 import html2canvas from 'html2canvas'
 
 import { Loading } from '@/components'
@@ -24,8 +8,24 @@ import { getDocumentTitle } from '@/utils'
 import { useAppDispatch } from '@/hooks'
 import { sidebarAction, ActiveSidebarItem } from '@/store'
 import { useGetNotesRequest } from '@/requests'
-import { useStatisticsData, TagDistribution, DailyCompletedTasks } from '@/hooks/useStatisticsData'
-import { Note as NoteType, Task as TaskType } from '@/interfaces'
+import { useStatisticsData, DailyCompletedTasks } from '@/hooks/useStatisticsData'
+import {
+  LineChartComponent,
+  PieChartComponent,
+  BarChartComponent,
+  TaskListModal
+} from '@/components/Statistics'
+import {
+  selectDateRange,
+  selectSelectedDate,
+  selectSelectedTag,
+  selectSelectedPriority,
+  selectSearchTerm,
+  selectSortType,
+  statisticsAction
+} from '@/store/statisticsSlice'
+import { useSelector } from 'react-redux'
+import { TagDistribution, PriorityType } from '@/utils/statistics'
 
 const COLORS = [
   '#8884d8',
@@ -38,15 +38,6 @@ const COLORS = [
   '#0088FE'
 ]
 
-type DateRangeType = 'last7' | 'last30' | 'custom'
-type PriorityType = 'high' | 'medium' | 'low'
-
-interface SelectedTaskFilter {
-  type: 'tag' | 'priority' | 'none'
-  value: string | PriorityType | null
-  tasks: TaskType[]
-}
-
 export default function Statistics(): JSX.Element {
   const { t, i18n } = useTranslation(['common', 'layout', 'statistics'])
   const sidebarDispatch = useAppDispatch()
@@ -54,14 +45,6 @@ export default function Statistics(): JSX.Element {
 
   const { data: notesData, isLoading, refetch, isRefetching } = useGetNotesRequest()
 
-  const [dateRangeType, setDateRangeType] = useState<DateRangeType>('last30')
-  const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string }>({
-    start: dayjs().subtract(29, 'day').format('YYYY-MM-DD'),
-    end: dayjs().format('YYYY-MM-DD')
-  })
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  const [selectedTag, setSelectedTag] = useState<TagDistribution | null>(null)
-  const [selectedPriority, setSelectedPriority] = useState<PriorityType | null>(null)
   const [showTagModal, setShowTagModal] = useState(false)
   const [showPriorityModal, setShowPriorityModal] = useState(false)
   const [notification, setNotification] = useState<{
@@ -74,17 +57,18 @@ export default function Statistics(): JSX.Element {
     message: ''
   })
 
-  const dateRange = useMemo(() => {
-    if (dateRangeType === 'last7') {
-      return { start: dayjs().subtract(6, 'day'), end: dayjs() }
-    }
-    if (dateRangeType === 'last30') {
-      return { start: dayjs().subtract(29, 'day'), end: dayjs() }
-    }
-    return { start: dayjs(customDateRange.start), end: dayjs(customDateRange.end) }
-  }, [dateRangeType, customDateRange])
+  const dateRangeType = useSelector((state) => state.statistics.dateRangeType)
+  const customDateRange = useSelector((state) => state.statistics.customDateRange)
+  const selectedDate = useSelector(selectSelectedDate)
+  const selectedTag = useSelector(selectSelectedTag)
+  const selectedPriority = useSelector(selectSelectedPriority)
+  const searchTerm = useSelector(selectSearchTerm)
+  const sortType = useSelector(selectSortType)
+  const dateRange = useSelector(selectDateRange)
 
-  const statistics = useStatisticsData(notesData?.notes, dateRange)
+  const statistics = useStatisticsData(notesData?.notes)
+
+  const dispatch = useAppDispatch()
 
   const filteredDailyCompleted = useMemo(() => {
     if (!selectedDate) return statistics.dailyCompleted
@@ -96,10 +80,15 @@ export default function Statistics(): JSX.Element {
     return statistics.tagDistribution.slice(0, 8)
   }, [statistics.tagDistribution])
 
+  const selectedTagData = useMemo(() => {
+    if (!selectedTag) return null
+    return statistics.tagDistribution.find((t) => t.tag === selectedTag) || null
+  }, [selectedTag, statistics.tagDistribution])
+
   const selectedTasksForTag = useMemo(() => {
-    if (!selectedTag) return []
-    return selectedTag.tasks
-  }, [selectedTag])
+    if (!selectedTagData) return []
+    return selectedTagData.tasks
+  }, [selectedTagData])
 
   const priorityTasks = useMemo(() => {
     if (selectedPriority === 'high') return statistics.priorityDistribution.highTasks
@@ -176,27 +165,27 @@ export default function Statistics(): JSX.Element {
   const handleLineClick = useCallback(
     (data: DailyCompletedTasks | null) => {
       if (data) {
-        setSelectedDate(selectedDate === data.date ? null : data.date)
+        dispatch(statisticsAction.setSelectedDate(selectedDate === data.date ? null : data.date))
       }
     },
-    [selectedDate]
+    [selectedDate, dispatch]
   )
 
-  const handlePieClick = useCallback((data: TagDistribution) => {
-    setSelectedTag(data)
-    setShowTagModal(true)
-  }, [])
+  const handlePieClick = useCallback(
+    (data: TagDistribution) => {
+      dispatch(statisticsAction.setSelectedTag(data.tag))
+      setShowTagModal(true)
+    },
+    [dispatch]
+  )
 
-  const handleBarClick = useCallback((priority: PriorityType) => {
-    setSelectedPriority(priority)
-    setShowPriorityModal(true)
-  }, [])
-
-  const getPriorityLabel = (priority: PriorityType) => {
-    if (priority === 'high') return t('statistics:PRIORITY.HIGH')
-    if (priority === 'medium') return t('statistics:PRIORITY.MEDIUM')
-    return t('statistics:PRIORITY.LOW')
-  }
+  const handleBarClick = useCallback(
+    (priority: PriorityType) => {
+      dispatch(statisticsAction.setSelectedPriority(priority))
+      setShowPriorityModal(true)
+    },
+    [dispatch]
+  )
 
   const pieData = useMemo(() => {
     return filteredTagDistribution.map((tag, index) => ({
@@ -229,72 +218,6 @@ export default function Statistics(): JSX.Element {
       }
     ]
   }, [statistics.priorityDistribution, t])
-
-  const TaskListModal = ({
-    show,
-    onClose,
-    title,
-    tasks
-  }: {
-    show: boolean
-    onClose: () => void
-    title: string
-    tasks: TaskType[]
-  }) => {
-    if (!show) return null
-
-    const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
-      const task = tasks[index]
-      return (
-        <div
-          style={style}
-          className="flex items-center border-b border-base-300 px-4 dark:border-gray-700"
-        >
-          <span className="truncate text-sm text-gray-700 dark:text-gray-300">
-            {task.content || t('statistics:TASK_LIST.EMPTY')}
-          </span>
-        </div>
-      )
-    }
-
-    return (
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-        onClick={onClose}
-      >
-        <div
-          className="flex max-h-[80vh] w-full max-w-md flex-col rounded-lg bg-white shadow-xl dark:bg-gray-800"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex items-center justify-between border-b border-base-300 p-4 dark:border-gray-700">
-            <h3 className="text-lg font-semibold">{title}</h3>
-            <button
-              className="btn btn-sm btn-circle btn-ghost"
-              onClick={onClose}
-            >
-              ✕
-            </button>
-          </div>
-          <div className="flex-1 overflow-hidden">
-            {tasks.length > 0 ? (
-              <FixedSizeList
-                height={400}
-                width="100%"
-                itemCount={tasks.length}
-                itemSize={50}
-              >
-                {Row}
-              </FixedSizeList>
-            ) : (
-              <div className="flex h-40 items-center justify-center text-gray-500">
-                {t('statistics:TASK_LIST.EMPTY')}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   if (isLoading || isRefetching) {
     return (
@@ -409,7 +332,11 @@ export default function Statistics(): JSX.Element {
             <select
               className="select select-bordered select-sm w-full max-w-xs"
               value={dateRangeType}
-              onChange={(e) => setDateRangeType(e.target.value as DateRangeType)}
+              onChange={(e) =>
+                dispatch(
+                  statisticsAction.setDateRangeType(e.target.value as 'last7' | 'last30' | 'custom')
+                )
+              }
             >
               <option value="last7">{t('statistics:DATE_RANGE.LAST_7_DAYS')}</option>
               <option value="last30">{t('statistics:DATE_RANGE.LAST_30_DAYS')}</option>
@@ -422,14 +349,26 @@ export default function Statistics(): JSX.Element {
                   className="input input-bordered input-sm flex-1"
                   value={customDateRange.start}
                   onChange={(e) =>
-                    setCustomDateRange({ ...customDateRange, start: e.target.value })
+                    dispatch(
+                      statisticsAction.setCustomDateRange({
+                        ...customDateRange,
+                        start: e.target.value
+                      })
+                    )
                   }
                 />
                 <input
                   type="date"
                   className="input input-bordered input-sm flex-1"
                   value={customDateRange.end}
-                  onChange={(e) => setCustomDateRange({ ...customDateRange, end: e.target.value })}
+                  onChange={(e) =>
+                    dispatch(
+                      statisticsAction.setCustomDateRange({
+                        ...customDateRange,
+                        end: e.target.value
+                      })
+                    )
+                  }
                 />
               </div>
             )}
@@ -440,7 +379,20 @@ export default function Statistics(): JSX.Element {
                 {t('statistics:FILTER.BY_DATE', { date: selectedDate })}
                 <button
                   className="ml-1"
-                  onClick={() => setSelectedDate(null)}
+                  onClick={() => dispatch(statisticsAction.setSelectedDate(null))}
+                >
+                  ✕
+                </button>
+              </span>
+            </div>
+          )}
+          {selectedTag && (
+            <div className="mt-2">
+              <span className="badge badge-success gap-2">
+                {t('statistics:FILTER.BY_TAG', { tag: selectedTag })}
+                <button
+                  className="ml-1"
+                  onClick={() => dispatch(statisticsAction.setSelectedTag(null))}
                 >
                   ✕
                 </button>
@@ -456,38 +408,11 @@ export default function Statistics(): JSX.Element {
           <div className="card card-bordered bg-base-100 p-4 shadow-xl lg:col-span-2">
             <h2 className="mb-4 text-lg font-semibold">{t('statistics:CHART.COMPLETED_TREND')}</h2>
             <div className="h-[300px]">
-              <ResponsiveContainer
-                width="100%"
-                height="100%"
-              >
-                <LineChart data={statistics.dailyCompleted}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 12 }}
-                    tickFormatter={(value) => dayjs(value).format('MM/DD')}
-                  />
-                  <YAxis
-                    allowDecimals={false}
-                    tick={{ fontSize: 12 }}
-                  />
-                  <Tooltip
-                    formatter={(value: number) => [value, t('statistics:CHART.LABEL')]}
-                    labelFormatter={(label) => t('statistics:CHART.DAY', { count: '', day: label })}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="count"
-                    stroke="#8884d8"
-                    activeDot={{
-                      r: 8,
-                      onClick: (_, payload) =>
-                        handleLineClick(payload?.payload as DailyCompletedTasks | null)
-                    }}
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <LineChartComponent
+                data={statistics.dailyCompleted}
+                onLineClick={handleLineClick}
+                selectedTag={selectedTag}
+              />
             </div>
           </div>
 
@@ -495,33 +420,10 @@ export default function Statistics(): JSX.Element {
             <h2 className="mb-4 text-lg font-semibold">{t('statistics:CHART.TAG_DISTRIBUTION')}</h2>
             {pieData.length > 0 ? (
               <div className="h-[300px]">
-                <ResponsiveContainer
-                  width="100%"
-                  height="100%"
-                >
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={2}
-                      dataKey="value"
-                      onClick={(data) => handlePieClick(data.originalTag)}
-                      cursor="pointer"
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={entry.color}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
+                <PieChartComponent
+                  data={pieData}
+                  onPieClick={handlePieClick}
+                />
               </div>
             ) : (
               <div className="flex h-[300px] items-center justify-center text-gray-500">
@@ -535,36 +437,10 @@ export default function Statistics(): JSX.Element {
               {t('statistics:CHART.PRIORITY_DISTRIBUTION')}
             </h2>
             <div className="h-[300px]">
-              <ResponsiveContainer
-                width="100%"
-                height="100%"
-              >
-                <BarChart
-                  data={barData}
-                  layout="vertical"
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    type="number"
-                    allowDecimals={false}
-                  />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    width={80}
-                  />
-                  <Tooltip
-                    formatter={(value: number) => [value, t('statistics:CHART.TASK_COUNT')]}
-                  />
-                  <Bar
-                    dataKey="value"
-                    cursor="pointer"
-                    onClick={(data) =>
-                      handleBarClick((data as { priority: PriorityType }).priority)
-                    }
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              <BarChartComponent
+                data={barData}
+                onBarClick={handleBarClick}
+              />
             </div>
           </div>
 
@@ -581,7 +457,7 @@ export default function Statistics(): JSX.Element {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 0 012 2m-6 9l2 2 4-4"
                   ></path>
                 </svg>
               </div>
@@ -604,11 +480,11 @@ export default function Statistics(): JSX.Element {
                   ></path>
                 </svg>
               </div>
-              <div className="stat-title">{t('statistics:CHART.TASK_COUNT')}</div>
-              <div className="stat-value text-warning">{statistics.totalTasks}</div>
+              <div className="stat-title">{t('statistics:INCOMPLETE')}</div>
+              <div className="stat-value text-warning">{statistics.incompleteTasks}</div>
             </div>
             <div className="stat rounded-lg bg-base-100 shadow">
-              <div className="stat-figure text-error">
+              <div className="stat-figure text-info">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -619,42 +495,54 @@ export default function Statistics(): JSX.Element {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                   ></path>
                 </svg>
               </div>
-              <div className="stat-title">{t('statistics:CHART.NO_TAG') || 'Incomplete'}</div>
-              <div className="stat-value text-error">{statistics.incompleteTasks}</div>
+              <div className="stat-title">{t('statistics:TOTAL')}</div>
+              <div className="stat-value text-info">{statistics.totalTasks}</div>
             </div>
           </div>
         </div>
-      </div>
 
-      <TaskListModal
-        show={showTagModal}
-        onClose={() => setShowTagModal(false)}
-        title={t('statistics:TASK_LIST.FILTERED_BY_TAG', { tag: selectedTag?.tag || '' })}
-        tasks={selectedTasksForTag}
-      />
+        <TaskListModal
+          show={showTagModal}
+          onClose={() => {
+            setShowTagModal(false)
+            dispatch(statisticsAction.setSelectedTag(null))
+          }}
+          title={t('statistics:TASK_LIST.TAG_TITLE', { tag: selectedTag || '' })}
+          tasks={selectedTasksForTag}
+          type="tag"
+        />
 
-      <TaskListModal
-        show={showPriorityModal}
-        onClose={() => setShowPriorityModal(false)}
-        title={t('statistics:TASK_LIST.FILTERED_BY_PRIORITY', {
-          priority: getPriorityLabel(selectedPriority || 'high')
-        })}
-        tasks={priorityTasks}
-      />
+        <TaskListModal
+          show={showPriorityModal}
+          onClose={() => {
+            setShowPriorityModal(false)
+            dispatch(statisticsAction.setSelectedPriority(null))
+          }}
+          title={t('statistics:TASK_LIST.PRIORITY_TITLE', {
+            priority: selectedPriority
+              ? t(`statistics:PRIORITY.${selectedPriority.toUpperCase()}`)
+              : ''
+          })}
+          tasks={priorityTasks}
+          type="priority"
+        />
 
-      {notification.show && (
-        <div
-          className={`toast toast-end z-50 ${notification.success ? 'toast-success' : 'toast-error'}`}
-        >
-          <div className={`alert ${notification.success ? 'alert-success' : 'alert-error'}`}>
-            <span>{notification.message}</span>
+        {notification.show && (
+          <div
+            className={`fixed bottom-4 right-4 z-50 rounded-lg p-4 shadow-xl ${
+              notification.success
+                ? 'bg-success text-success-content'
+                : 'bg-error text-error-content'
+            }`}
+          >
+            {notification.message}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
