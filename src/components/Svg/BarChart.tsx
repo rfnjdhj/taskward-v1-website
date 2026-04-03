@@ -13,7 +13,7 @@ export default function BarChart({
       viewBox="0 0 24 24"
       width={width}
       height={height}
-      className={clsx('fill-black', className)}
+      className={clsx(className)}
       onClick={onClick}
     >
       <path

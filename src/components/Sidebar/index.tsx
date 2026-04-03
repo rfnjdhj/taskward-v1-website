@@ -44,7 +44,7 @@ export default function Sidebar(): JSX.Element {
     >
       <SidebarItem
         shouldExpand={sidebarMode === 'expand' || (shouldExpand && sidebarMode === 'collapse')}
-        icon={<Icon.Note className="fill-black dark:fill-white" />}
+        icon={<Icon.Note className="fill-current" />}
         title={t('layout:SIDEBAR.TITLE.NOTE')}
         active={activeSidebarItem === ActiveSidebarItem.Note}
         onClick={() => {
@@ -53,7 +53,7 @@ export default function Sidebar(): JSX.Element {
       />
       <SidebarItem
         shouldExpand={sidebarMode === 'expand' || (shouldExpand && sidebarMode === 'collapse')}
-        icon={<Icon.Archive className="fill-black dark:fill-white" />}
+        icon={<Icon.Archive className="fill-current" />}
         title={t('layout:SIDEBAR.TITLE.ARCHIVE')}
         active={activeSidebarItem === ActiveSidebarItem.Archive}
         onClick={() => {
@@ -62,7 +62,7 @@ export default function Sidebar(): JSX.Element {
       />
       <SidebarItem
         shouldExpand={sidebarMode === 'expand' || (shouldExpand && sidebarMode === 'collapse')}
-        icon={<Icon.Trash className="fill-black dark:fill-white" />}
+        icon={<Icon.Trash className="fill-current" />}
         title={t('layout:SIDEBAR.TITLE.TRASH')}
         active={activeSidebarItem === ActiveSidebarItem.Trash}
         onClick={() => {
@@ -71,7 +71,7 @@ export default function Sidebar(): JSX.Element {
       />
       <SidebarItem
         shouldExpand={sidebarMode === 'expand' || (shouldExpand && sidebarMode === 'collapse')}
-        icon={<Icon.BarChart className="fill-black dark:fill-white" />}
+        icon={<Icon.BarChart className="fill-current" />}
         title={t('layout:SIDEBAR.TITLE.STATISTICS')}
         active={activeSidebarItem === ActiveSidebarItem.Statistics}
         onClick={() => {

@@ -28,14 +28,14 @@ import { useStatisticsData, TagDistribution, DailyCompletedTasks } from '@/hooks
 import { Note as NoteType, Task as TaskType } from '@/interfaces'
 
 const COLORS = [
-  '#8884d8',
-  '#82ca9d',
-  '#ffc658',
-  '#ff7300',
-  '#00C49F',
-  '#FFBB28',
-  '#FF8042',
-  '#0088FE'
+  'var(--chart-pie-1)',
+  'var(--chart-pie-2)',
+  'var(--chart-pie-3)',
+  'var(--chart-pie-4)',
+  'var(--chart-pie-5)',
+  'var(--chart-pie-6)',
+  'var(--chart-pie-7)',
+  'var(--chart-pie-8)'
 ]
 
 type DateRangeType = 'last7' | 'last30' | 'custom'
@@ -59,6 +59,26 @@ export default function Statistics(): JSX.Element {
     start: dayjs().subtract(29, 'day').format('YYYY-MM-DD'),
     end: dayjs().format('YYYY-MM-DD')
   })
+
+  /**
+   * 处理日期范围类型变化
+   * @param newType 新的日期范围类型
+   */
+  const handleDateRangeTypeChange = useCallback((newType: DateRangeType) => {
+    setDateRangeType(newType)
+  }, [])
+
+  /**
+   * 处理自定义日期范围变化
+   * @param field 要更新的字段（start 或 end）
+   * @param value 新的日期值
+   */
+  const handleCustomDateChange = useCallback((field: 'start' | 'end', value: string) => {
+    setCustomDateRange((prev) => ({
+      ...prev,
+      [field]: value
+    }))
+  }, [])
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTag, setSelectedTag] = useState<TagDistribution | null>(null)
   const [selectedPriority, setSelectedPriority] = useState<PriorityType | null>(null)
@@ -213,19 +233,19 @@ export default function Statistics(): JSX.Element {
         name: t('statistics:PRIORITY.HIGH'),
         value: statistics.priorityDistribution.high,
         priority: 'high' as PriorityType,
-        fill: '#ef4444'
+        fill: 'var(--chart-bar-high)'
       },
       {
         name: t('statistics:PRIORITY.MEDIUM'),
         value: statistics.priorityDistribution.medium,
         priority: 'medium' as PriorityType,
-        fill: '#f59e0b'
+        fill: 'var(--chart-bar-medium)'
       },
       {
         name: t('statistics:PRIORITY.LOW'),
         value: statistics.priorityDistribution.low,
         priority: 'low' as PriorityType,
-        fill: '#22c55e'
+        fill: 'var(--chart-bar-low)'
       }
     ]
   }, [statistics.priorityDistribution, t])
@@ -409,7 +429,7 @@ export default function Statistics(): JSX.Element {
             <select
               className="select select-bordered select-sm w-full max-w-xs"
               value={dateRangeType}
-              onChange={(e) => setDateRangeType(e.target.value as DateRangeType)}
+              onChange={(e) => handleDateRangeTypeChange(e.target.value as DateRangeType)}
             >
               <option value="last7">{t('statistics:DATE_RANGE.LAST_7_DAYS')}</option>
               <option value="last30">{t('statistics:DATE_RANGE.LAST_30_DAYS')}</option>
@@ -421,15 +441,13 @@ export default function Statistics(): JSX.Element {
                   type="date"
                   className="input input-bordered input-sm flex-1"
                   value={customDateRange.start}
-                  onChange={(e) =>
-                    setCustomDateRange({ ...customDateRange, start: e.target.value })
-                  }
+                  onChange={(e) => handleCustomDateChange('start', e.target.value)}
                 />
                 <input
                   type="date"
                   className="input input-bordered input-sm flex-1"
                   value={customDateRange.end}
-                  onChange={(e) => setCustomDateRange({ ...customDateRange, end: e.target.value })}
+                  onChange={(e) => handleCustomDateChange('end', e.target.value)}
                 />
               </div>
             )}
@@ -461,15 +479,18 @@ export default function Statistics(): JSX.Element {
                 height="100%"
               >
                 <LineChart data={statistics.dailyCompleted}>
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--chart-grid)"
+                  />
                   <XAxis
                     dataKey="date"
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 12, fill: 'var(--chart-text)' }}
                     tickFormatter={(value) => dayjs(value).format('MM/DD')}
                   />
                   <YAxis
                     allowDecimals={false}
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 12, fill: 'var(--chart-text)' }}
                   />
                   <Tooltip
                     formatter={(value: number) => [value, t('statistics:CHART.LABEL')]}
@@ -478,7 +499,7 @@ export default function Statistics(): JSX.Element {
                   <Line
                     type="monotone"
                     dataKey="count"
-                    stroke="#8884d8"
+                    stroke="var(--chart-line)"
                     activeDot={{
                       r: 8,
                       onClick: (_, payload) =>
@@ -543,15 +564,20 @@ export default function Statistics(): JSX.Element {
                   data={barData}
                   layout="vertical"
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--chart-grid)"
+                  />
                   <XAxis
                     type="number"
                     allowDecimals={false}
+                    tick={{ fill: 'var(--chart-text)' }}
                   />
                   <YAxis
                     dataKey="name"
                     type="category"
                     width={80}
+                    tick={{ fill: 'var(--chart-text)' }}
                   />
                   <Tooltip
                     formatter={(value: number) => [value, t('statistics:CHART.TASK_COUNT')]}

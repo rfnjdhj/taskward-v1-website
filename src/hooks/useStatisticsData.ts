@@ -2,12 +2,18 @@ import { useMemo } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import { Note, Task } from '@/interfaces'
 
+/**
+ * 每日完成任务数据接口
+ */
 export interface DailyCompletedTasks {
   date: string
   count: number
   tasks: Task[]
 }
 
+/**
+ * 优先级分布数据接口
+ */
 export interface PriorityDistribution {
   high: number
   medium: number
@@ -17,12 +23,18 @@ export interface PriorityDistribution {
   lowTasks: Task[]
 }
 
+/**
+ * 标签分布数据接口
+ */
 export interface TagDistribution {
   tag: string
   count: number
   tasks: Task[]
 }
 
+/**
+ * 统计数据接口
+ */
 export interface StatisticsData {
   dailyCompleted: DailyCompletedTasks[]
   priorityDistribution: PriorityDistribution
@@ -32,6 +44,11 @@ export interface StatisticsData {
   incompleteTasks: number
 }
 
+/**
+ * 获取任务完成日期
+ * @param task 任务对象
+ * @returns 完成日期或 null
+ */
 function getTaskCompletedDate(task: Task): Dayjs | null {
   if (task.finishedAt) {
     return dayjs(task.finishedAt)
@@ -39,12 +56,23 @@ function getTaskCompletedDate(task: Task): Dayjs | null {
   return null
 }
 
+/**
+ * 获取优先级标签
+ * @param priority 优先级数值
+ * @returns 优先级标签字符串
+ */
 function getPriorityLabel(priority: number): string {
   if (priority >= 2) return 'high'
   if (priority === 1) return 'medium'
   return 'low'
 }
 
+/**
+ * 从任务中提取标签
+ * @param task 任务对象
+ * @param note 笔记对象（可选）
+ * @returns 标签字符串
+ */
 function extractTagFromTask(task: Task, note?: Note): string {
   if (note?.name && note.name.trim()) {
     const words = note.name.trim().split(/\s+/)
@@ -61,10 +89,20 @@ function extractTagFromTask(task: Task, note?: Note): string {
   return 'Untitled'
 }
 
+/**
+ * 计算统计数据的 Hook
+ * @param notes 笔记列表
+ * @param dateRange 日期范围
+ * @returns 统计数据
+ */
 export function useStatisticsData(
   notes: Note[] | undefined,
   dateRange: { start: Dayjs; end: Dayjs } | null
 ): StatisticsData {
+  const dateRangeKey = dateRange
+    ? `${dateRange.start.format('YYYY-MM-DD')}-${dateRange.end.format('YYYY-MM-DD')}`
+    : 'default'
+
   return useMemo(() => {
     if (!notes || notes.length === 0) {
       return {
@@ -186,5 +224,5 @@ export function useStatisticsData(
       completedTasks: completedTasks.length,
       incompleteTasks: incompleteTasks.length
     }
-  }, [notes, dateRange])
+  }, [notes, dateRangeKey])
 }
