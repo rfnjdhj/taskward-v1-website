@@ -32,6 +32,11 @@ export interface StatisticsData {
   incompleteTasks: number
 }
 
+/**
+ * 获取任务完成日期
+ * @param task 任务对象
+ * @returns 任务完成日期，未完成返回 null
+ */
 function getTaskCompletedDate(task: Task): Dayjs | null {
   if (task.finishedAt) {
     return dayjs(task.finishedAt)
@@ -39,12 +44,23 @@ function getTaskCompletedDate(task: Task): Dayjs | null {
   return null
 }
 
+/**
+ * 获取优先级标签
+ * @param priority 优先级数值
+ * @returns 优先级标签（high、medium、low）
+ */
 function getPriorityLabel(priority: number): string {
   if (priority >= 2) return 'high'
   if (priority === 1) return 'medium'
   return 'low'
 }
 
+/**
+ * 从任务中提取标签
+ * @param task 任务对象
+ * @param note 笔记对象（可选）
+ * @returns 提取的标签
+ */
 function extractTagFromTask(task: Task, note?: Note): string {
   if (note?.name && note.name.trim()) {
     const words = note.name.trim().split(/\s+/)
@@ -61,6 +77,12 @@ function extractTagFromTask(task: Task, note?: Note): string {
   return 'Untitled'
 }
 
+/**
+ * 计算统计数据
+ * @param notes 笔记数组
+ * @param dateRange 日期范围
+ * @returns 统计数据对象
+ */
 export function useStatisticsData(
   notes: Note[] | undefined,
   dateRange: { start: Dayjs; end: Dayjs } | null
@@ -103,7 +125,7 @@ export function useStatisticsData(
 
     const dailyCompletedMap = new Map<string, DailyCompletedTasks>()
     for (let i = 0; i < daysDiff; i++) {
-      const date = startDate.add(i, 'day')
+      const date = startDate.clone().add(i, 'day')
       const dateStr = date.format('YYYY-MM-DD')
       dailyCompletedMap.set(dateStr, {
         date: dateStr,

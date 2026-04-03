@@ -27,15 +27,15 @@ import { useGetNotesRequest } from '@/requests'
 import { useStatisticsData, TagDistribution, DailyCompletedTasks } from '@/hooks/useStatisticsData'
 import { Note as NoteType, Task as TaskType } from '@/interfaces'
 
-const COLORS = [
-  '#8884d8',
-  '#82ca9d',
-  '#ffc658',
-  '#ff7300',
-  '#00C49F',
-  '#FFBB28',
-  '#FF8042',
-  '#0088FE'
+const CHART_COLORS = [
+  'var(--chart-pie-1)',
+  'var(--chart-pie-2)',
+  'var(--chart-pie-3)',
+  'var(--chart-pie-4)',
+  'var(--chart-pie-5)',
+  'var(--chart-pie-6)',
+  'var(--chart-pie-7)',
+  'var(--chart-pie-8)'
 ]
 
 type DateRangeType = 'last7' | 'last30' | 'custom'
@@ -116,11 +116,19 @@ export default function Statistics(): JSX.Element {
     sidebarDispatch(sidebarAction.changeActiveSidebarItem(ActiveSidebarItem.Statistics))
   }, [])
 
+  /**
+   * 显示通知
+   * @param success 是否成功
+   * @param message 通知消息
+   */
   const showNotification = useCallback((success: boolean, message: string) => {
     setNotification({ show: true, success, message })
     setTimeout(() => setNotification({ show: false, success: false, message: '' }), 3000)
   }, [])
 
+  /**
+   * 导出图表为图片
+   */
   const handleExportImage = useCallback(async () => {
     if (!chartRef.current) return
     try {
@@ -137,6 +145,9 @@ export default function Statistics(): JSX.Element {
     }
   }, [showNotification, t])
 
+  /**
+   * 导出统计数据为 CSV
+   */
   const handleExportCSV = useCallback(() => {
     const rows: string[][] = []
     rows.push([
@@ -173,6 +184,10 @@ export default function Statistics(): JSX.Element {
     showNotification(true, t('statistics:EXPORT.SUCCESS'))
   }, [statistics, showNotification, t])
 
+  /**
+   * 处理折线图点击事件
+   * @param data 点击的数据
+   */
   const handleLineClick = useCallback(
     (data: DailyCompletedTasks | null) => {
       if (data) {
@@ -182,16 +197,29 @@ export default function Statistics(): JSX.Element {
     [selectedDate]
   )
 
+  /**
+   * 处理饼图点击事件
+   * @param data 点击的数据
+   */
   const handlePieClick = useCallback((data: TagDistribution) => {
     setSelectedTag(data)
     setShowTagModal(true)
   }, [])
 
+  /**
+   * 处理条形图点击事件
+   * @param priority 优先级
+   */
   const handleBarClick = useCallback((priority: PriorityType) => {
     setSelectedPriority(priority)
     setShowPriorityModal(true)
   }, [])
 
+  /**
+   * 获取优先级标签
+   * @param priority 优先级
+   * @returns 优先级标签文本
+   */
   const getPriorityLabel = (priority: PriorityType) => {
     if (priority === 'high') return t('statistics:PRIORITY.HIGH')
     if (priority === 'medium') return t('statistics:PRIORITY.MEDIUM')
@@ -202,7 +230,7 @@ export default function Statistics(): JSX.Element {
     return filteredTagDistribution.map((tag, index) => ({
       name: tag.tag,
       value: tag.count,
-      color: COLORS[index % COLORS.length],
+      color: CHART_COLORS[index % CHART_COLORS.length],
       originalTag: tag
     }))
   }, [filteredTagDistribution])
@@ -213,19 +241,19 @@ export default function Statistics(): JSX.Element {
         name: t('statistics:PRIORITY.HIGH'),
         value: statistics.priorityDistribution.high,
         priority: 'high' as PriorityType,
-        fill: '#ef4444'
+        fill: 'var(--chart-bar-high)'
       },
       {
         name: t('statistics:PRIORITY.MEDIUM'),
         value: statistics.priorityDistribution.medium,
         priority: 'medium' as PriorityType,
-        fill: '#f59e0b'
+        fill: 'var(--chart-bar-medium)'
       },
       {
         name: t('statistics:PRIORITY.LOW'),
         value: statistics.priorityDistribution.low,
         priority: 'low' as PriorityType,
-        fill: '#22c55e'
+        fill: 'var(--chart-bar-low)'
       }
     ]
   }, [statistics.priorityDistribution, t])
@@ -478,7 +506,7 @@ export default function Statistics(): JSX.Element {
                   <Line
                     type="monotone"
                     dataKey="count"
-                    stroke="#8884d8"
+                    stroke="var(--chart-line)"
                     activeDot={{
                       r: 8,
                       onClick: (_, payload) =>

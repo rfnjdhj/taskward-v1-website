@@ -13,7 +13,7 @@ export default function Note({
       viewBox="0 0 24 24"
       width={width}
       height={height}
-      className={clsx('fill-black', className)}
+      className={className}
       onClick={onClick}
     >
       <g>
