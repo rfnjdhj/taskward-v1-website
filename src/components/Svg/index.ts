@@ -53,6 +53,7 @@ import Link from './Link'
 import LinkOff from './LinkOff'
 import Touch from './Touch'
 import Door from './Door'
+import BarChart from './BarChart'
 
 export const Icon = {
   Archive,
@@ -102,5 +103,6 @@ export const Icon = {
   Link,
   LinkOff,
   Touch,
-  Door
+  Door,
+  BarChart
 }

@@ -19,7 +19,7 @@ export default function SidebarItem({
   return (
     <div
       className={clsx(
-        'flex cursor-pointer items-center transition-[background-color,fill,width,border-radius]',
+        'flex cursor-pointer items-center text-gray-800 transition-[background-color,fill,width,border-radius] dark:text-gray-200',
         active
           ? shouldExpand && 'rounded-md bg-emerald-300 dark:bg-emerald-700'
           : shouldExpand && 'rounded-md hover:bg-gray-200 dark:hover:bg-gray-500'

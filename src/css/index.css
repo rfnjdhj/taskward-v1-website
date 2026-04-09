@@ -16,10 +16,38 @@
   --taskward-theme-color-dark: rgb(54 57 63);
   --taskward-theme-color-darker: rgb(47 49 54);
   --taskward-theme-color-darkest: rgb(32 34 37);
+  --chart-line: #8884d8;
+  --chart-pie-1: #8884d8;
+  --chart-pie-2: #82ca9d;
+  --chart-pie-3: #ffc658;
+  --chart-pie-4: #ff7300;
+  --chart-pie-5: #00c49f;
+  --chart-pie-6: #ffbb28;
+  --chart-pie-7: #ff8042;
+  --chart-pie-8: #0088fe;
+  --chart-bar-high: #ef4444;
+  --chart-bar-medium: #f59e0b;
+  --chart-bar-low: #22c55e;
+  --chart-grid: #e5e7eb;
+  --chart-text: #374151;
 }
 
 .dark {
   color-scheme: dark;
+  --chart-line: #a78bfa;
+  --chart-pie-1: #a78bfa;
+  --chart-pie-2: #6ee7b7;
+  --chart-pie-3: #fcd34d;
+  --chart-pie-4: #fb923c;
+  --chart-pie-5: #34d399;
+  --chart-pie-6: #fbbf24;
+  --chart-pie-7: #fb923c;
+  --chart-pie-8: #60a5fa;
+  --chart-bar-high: #f87171;
+  --chart-bar-medium: #fbbf24;
+  --chart-bar-low: #4ade80;
+  --chart-grid: #4b5563;
+  --chart-text: #d1d5db;
 }
 
 .en {
