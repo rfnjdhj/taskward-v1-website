@@ -13,7 +13,7 @@ export default function Trash({
       viewBox="0 0 24 24"
       width={width}
       height={height}
-      className={clsx('fill-black', className)}
+      className={className}
       onClick={onClick}
     >
       <g>

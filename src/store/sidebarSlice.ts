@@ -6,7 +6,8 @@ export enum ActiveSidebarItem {
   'None',
   'Note',
   'Archive',
-  'Trash'
+  'Trash',
+  'Statistics'
 }
 
 interface SidebarState {

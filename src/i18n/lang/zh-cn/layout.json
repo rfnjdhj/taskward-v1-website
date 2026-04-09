@@ -3,7 +3,8 @@
     "TITLE": {
       "NOTE": "记事",
       "ARCHIVE": "归档",
-      "TRASH": "回收站"
+      "TRASH": "回收站",
+      "STATISTICS": "统计"
     }
   },
   "HEADER": {
